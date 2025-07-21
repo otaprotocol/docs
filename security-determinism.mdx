@@ -1,0 +1,63 @@
+---
+title: 'Security & Determinism'
+---
+
+The Action Codes Protocol is designed to offer cryptographic security and strict determinism without requiring persistent on-chain state or user sessions. Every code can be verified, traced, and resolved based entirely on public inputs and signatures.
+
+#### Deterministic Code Generation
+
+<Info>
+  **Each Action Code is deterministically derived using the combination of:**
+    - Public key (pubkey)
+	 - Time window (timestamp, rounded to 2-minute slots)
+	 - Namespace prefix (prefix)
+	 - Signature over a canonical message
+</Info>
+
+This ensures that:
+	*	The same inputs will always produce the same code
+	*	Multiple clients (relayers, wallets) can reproduce and validate the code without external coordination
+	*	No central authority or database is required to issue or verify codes
+
+#### Signature Binding
+
+All codes are signed by the user’s wallet, ensuring:
+
+	*	The user explicitly authorizes the creation of the code
+	*	The code cannot be spoofed by any third party
+	*	Verification only requires the signature and public key
+
+  Each signature is over a canonical string:
+
+  ```text
+  {prefix}:{code}:{timestamp}
+  ```
+
+  This binding ensures replay protection and uniqueness within the time window.
+
+#### Encrypted Payloads
+
+Action Code objects are encrypted using the code itself as the symmetric key. This means:
+
+	*	The code is the secret needed to decrypt and access transaction details
+	*	Even if a relayer or database is compromised, attackers cannot view transaction intent or metadata without knowing the code
+	*	This pattern supports stateless privacy and decentralization
+
+Only the user who created the code (or anyone they share it with) can decrypt and act on it.
+
+#### No On-Chain State or Sessions
+
+	*	No wallet connection is needed to generate or resolve a code
+	*	No smart contract is involved in the validation of the code itself
+	*	All logic is executed locally or server-side via open protocol rules
+	*	Transactions are finalized only after on-chain user signatures
+
+#### Built-in Expiry & Grace Period
+
+Codes include expiration timestamps and are valid only within a short window (e.g. 2–3 minutes):
+
+	* Prevents reuse or replay
+	* Encourages real-time interaction
+	* Relayers automatically reject expired codes
+
+The protocol also allows ±1 slot tolerance for clock drift.

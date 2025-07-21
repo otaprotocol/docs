@@ -1,0 +1,42 @@
+---
+title: "Protocol Specification & Design"
+---
+
+## Overview
+
+The Action Codes Protocol defines how short-lived, self-contained codes can represent cryptographically verifiable intent for blockchain actions. It provides:
+
+	*	A deterministic code derivation model
+	*	A secure, encrypted payload format
+	*	A pluggable adapter layer for chain-specific logic
+	*	Stateless generation, stateful resolution
+	*	Fully off-chain generation and submission flows
+
+
+#### Code Derivation
+
+Action Codes are derived based on the following parameters:
+
+| Field         | Description   |
+| ------------- | ----------------- |
+| pubkey          | The user’s wallet public key |
+| timestamp        | Millisecond timestamp rounded into 2-minute windows |
+| prefix | Optional string for code namespacing [WIP] |
+| signature | Signature over a message derived from the above fields |
+
+The derived code is 8-digits long and unique per user, per time slot, and prefix.
+
+
+#### Validation Rules
+
+To be valid, a code must:
+
+	* Match a hash derived from its inputs (deterministic match)
+	*	Be within the ±1 slot grace window (around 2 minutes)
+	*	Have a valid signature for the message, verified using the pubkey
+	*	Not be expired (default TTL = 2 minutes)
+
+#### Chain Adapter Architecture
+
+Action Codes Protocol defines an abstract adapter interface per chain. 
+This allows full cross-chain compatibility in future while reusing core logic.
