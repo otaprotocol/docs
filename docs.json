@@ -51,15 +51,6 @@
             "pages": [
               "protocol-docs/introduction"
             ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "protocol-docs/protocol/index",
-              "protocol-docs/endpoint/create",
-              "protocol-docs/endpoint/delete",
-              "protocol-docs/endpoint/webhook"
-            ]
           }
         ]
       },
@@ -70,15 +61,6 @@
             "group": "API documentation",
             "pages": [
               "relayer/index"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "relayer/endpoint/index",
-              "relayer/endpoint/create",
-              "relayer/endpoint/delete",
-              "relayer/endpoint/webhook"
             ]
           }
         ]
