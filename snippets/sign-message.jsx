@@ -45,14 +45,14 @@ export const SignMessage = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
-        <div className="flex items-center gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-xl mx-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Enter message"
-            className="border rounded px-3 py-2 min-w-[200px]"
+            className="border rounded px-3 py-2 w-full min-w-0"
             disabled={loading}
           />
           <input
@@ -60,25 +60,25 @@ export const SignMessage = () => {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="8-digit code"
-            className="border rounded px-3 py-2 min-w-[120px]"
+            className="border rounded px-3 py-2 w-full sm:w-40 min-w-0"
             disabled={loading}
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50 w-full sm:w-auto"
             disabled={loading || !message || !code}
           >
             {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
-        <div>
+        <div className="w-full">
           {status === "success" && <div className="text-green-600">Check your wallet to sign the message.</div>}
           {status === "error" && <div className="text-red-600">Failed to sign message.</div>}
         </div>
       </form>
-      <div className="flex flex-col items-center gap-2 mt-4">
+      <div className="flex flex-col items-center gap-2 mt-4 w-full max-w-xl mx-auto">
         <button
-          className="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-gray-700 text-white px-4 py-2 rounded disabled:opacity-50 w-full sm:w-auto"
           disabled={!code || statusLoading}
           onClick={async () => {
             setStatusResult(null);
@@ -109,7 +109,7 @@ export const SignMessage = () => {
             return <div className="text-red-600">{parsed.error}</div>;
           }
           return (
-            <div className="bg-zinc-100 dark:bg-zinc-800 p-3 rounded text-sm max-w-xl mt-2">
+            <div className="bg-zinc-100 dark:bg-zinc-800 p-3 rounded text-sm max-w-xl mt-2 overflow-x-auto">
               <div><span className="font-semibold">Status:</span> {parsed.status}</div>
               {parsed.expiresAt && (
                 <div><span className="font-semibold">Expires At:</span> {new Date(parsed.expiresAt).toLocaleString()}</div>
@@ -117,8 +117,8 @@ export const SignMessage = () => {
               {parsed.hasMessage && parsed.signedMessage && (
                 <div className="mt-2">
                   <span className="font-semibold">Signed Message:</span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <code className="bg-white dark:bg-zinc-900 px-2 py-1 rounded text-xs break-all">{parsed.signedMessage}</code>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
+                    <code className="bg-white dark:bg-zinc-900 px-2 py-1 rounded text-xs break-all w-full">{parsed.signedMessage}</code>
                     <button
                       className="text-blue-600 underline text-xs"
                       onClick={() => {
