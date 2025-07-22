@@ -44,6 +44,18 @@
       },
       {
         "disabled": true,
+        "tab": "Playground",
+        "groups": [
+          {
+            "group": "Playground",
+            "pages": [
+              "playground/index"
+            ]
+          }
+        ]
+      },
+      {
+        "disabled": true,
         "tab": "Protocol Docs",
         "groups": [
           {
