@@ -50,7 +50,8 @@
             "group": "Playground",
             "pages": [
               "playground/index",
-              "playground/sign-message"
+              "playground/sign-message",
+              "playground/sign-transaction"
             ]
           }
         ]

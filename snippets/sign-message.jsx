@@ -42,8 +42,8 @@ export const SignMessage = () => {
       setLoading(false);
     }
   };
-
-  return (
+  
+    return (
     <>
       <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-xl mx-auto">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
@@ -74,7 +74,7 @@ export const SignMessage = () => {
         <div className="w-full">
           {status === "success" && <div className="text-green-600">Check your wallet to sign the message.</div>}
           {status === "error" && <div className="text-red-600">Failed to sign message.</div>}
-        </div>
+          </div>
       </form>
       <div className="flex flex-col items-center gap-2 mt-4 w-full max-w-xl mx-auto">
         <button
@@ -119,15 +119,15 @@ export const SignMessage = () => {
                   <span className="font-semibold">Signed Message:</span>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mt-1">
                     <code className="bg-white dark:bg-zinc-900 px-2 py-1 rounded text-xs break-all w-full">{parsed.signedMessage}</code>
-                    <button
+          <button
                       className="text-blue-600 underline text-xs"
                       onClick={() => {
                         navigator.clipboard.writeText(parsed.signedMessage);
                       }}
                     >
                       Copy
-                    </button>
-                  </div>
+          </button>
+        </div>
                 </div>
               )}
             </div>
@@ -138,3 +138,4 @@ export const SignMessage = () => {
     </>
   );
 };
+  
