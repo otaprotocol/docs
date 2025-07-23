@@ -1,0 +1,240 @@
+---
+title: "ActionCode"
+---
+
+The `ActionCode` class represents an action code in the Action Codes Protocol. It encapsulates all the data and logic for a single action code, including its status, metadata, transaction details, and utility methods for validation and display.
+
+---
+
+## Type Definitions
+
+### ActionCodeStatus
+```ts
+type ActionCodeStatus = 'pending' | 'resolved' | 'finalized' | 'expired' | 'error';
+```
+Represents the status of an action code.
+
+---
+
+### ActionCodeMetadata
+```ts
+interface ActionCodeMetadata {
+  description?: string;
+  params?: Record<string, any>;
+}
+```
+Metadata for the action code, including an optional description and parameters.
+
+---
+
+### ActionCodeTransaction
+```ts
+interface ActionCodeTransaction {
+  transaction?: string; // Solana: base64 string
+  txSignature?: string; // Solana signature
+  txType?: string; // Transaction type for categorization
+  message?: string; // For sign-only mode: the message to be signed
+  signedMessage?: string; // For sign-only mode: the signed message or signature
+  intentType?: 'transaction' | 'sign-only'; // Explicit intent type
+}
+```
+Represents transaction or message data attached to an action code.
+
+---
+
+### ActionCodeFields
+```ts
+interface ActionCodeFields {
+  code: string;
+  prefix: string;
+  pubkey: string;
+  timestamp: number;
+  signature: string;
+  chain: string; // e.g., 'solana'
+  transaction?: ActionCodeTransaction;
+  metadata?: ActionCodeMetadata;
+  expiresAt: number;
+  status: ActionCodeStatus;
+}
+```
+All fields required to construct an ActionCode instance.
+
+---
+
+## ActionCode Class
+
+### Constructor
+```ts
+new ActionCode(fields: ActionCodeFields)
+```
+Creates a new ActionCode instance from the provided fields.
+
+---
+
+### Static Methods
+
+#### fromPayload
+```ts
+static fromPayload(input: ActionCodeFields): ActionCode
+```
+Creates an ActionCode from a plain object. Throws if required fields are missing.
+
+#### fromEncoded
+```ts
+static fromEncoded(encoded: string): ActionCode
+```
+Creates an ActionCode from a base64-encoded string.
+
+---
+
+### Instance Properties & Methods
+
+#### encoded
+```ts
+get encoded: string
+```
+Returns a base64-encoded string of the action code fields.
+
+#### isValid
+```ts
+isValid(protocol: ActionCodesProtocol): boolean
+```
+Checks if the action code is valid for the given protocol (signature, code format, not expired).
+
+#### updateStatus
+```ts
+updateStatus(status: ActionCodeStatus): void
+```
+Updates the status of the action code.
+
+#### json
+```ts
+get json: ActionCodeFields
+```
+Returns the raw fields as a plain object.
+
+#### remainingTime
+```ts
+get remainingTime: number
+```
+Milliseconds remaining until expiration (0 if expired).
+
+#### expired
+```ts
+get expired: boolean
+```
+Returns true if the code is expired.
+
+#### chain
+```ts
+get chain: string
+```
+Returns the chain identifier (e.g., 'solana').
+
+#### status
+```ts
+get status: ActionCodeStatus
+```
+Returns the current status of the action code.
+
+#### code
+```ts
+get code: string
+```
+Returns the 8-character action code string.
+
+#### prefix
+```ts
+get prefix: string
+```
+Returns the normalized prefix for the code.
+
+#### pubkey
+```ts
+get pubkey: string
+```
+Returns the user's public key.
+
+#### transaction
+```ts
+get transaction: ActionCodeTransaction | undefined
+```
+Returns the transaction data, if any.
+
+#### metadata
+```ts
+get metadata: ActionCodeMetadata | undefined
+```
+Returns the metadata object, if any.
+
+#### description
+```ts
+get description: string | undefined
+```
+Returns the human-readable description from metadata.
+
+#### params
+```ts
+get params: Record<string, any> | undefined
+```
+Returns the parameters from metadata.
+
+#### timestamp
+```ts
+get timestamp: number
+```
+Returns the timestamp when the code was generated.
+
+#### signature
+```ts
+get signature: string
+```
+Returns the user's signature string.
+
+#### displayString
+```ts
+get displayString: string
+```
+Returns a formatted string for display (e.g., "PREFIX-XXXXXX (solana, pending)").
+
+#### remainingTimeString
+```ts
+get remainingTimeString: string
+```
+Returns a human-readable string for remaining time (e.g., "1m 30s remaining" or "Expired").
+
+#### codeHash
+```ts
+get codeHash: string
+```
+Returns the code hash (used as code ID in protocol meta).
+
+#### intentType
+```ts
+get intentType: 'transaction' | 'sign-only'
+```
+Returns the intent type for the action code.
+
+---
+
+## Example
+
+```ts
+import { ActionCode } from "@actioncodes/protocol";
+
+const fields: ActionCodeFields = {
+  code: "ABC12345",
+  prefix: "DEFAULT",
+  pubkey: "...",
+  timestamp: Date.now(),
+  signature: "...",
+  chain: "solana",
+  expiresAt: Date.now() + 60000,
+  status: "pending",
+};
+
+const actionCode = new ActionCode(fields);
+console.log(actionCode.displayString); // e.g., "ABC12345 (solana, pending)"
+```
+
+---

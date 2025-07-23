@@ -1,0 +1,40 @@
+---
+title: "Setup"
+---
+
+<Steps>
+  <Step title="Install package">
+    <CodeGroup>
+
+```bash pnpm
+pnpm add @actioncodes/sdk
+```
+
+```bash npm
+npm install @actioncodes/sdk
+```
+
+```bash yarn
+yarn add @actioncodes/sdk
+```
+</CodeGroup>
+  </Step>
+  <Step title="Initialize the ActionCodesClient. And you are ready for using one-time codes in your application.">
+    ```typescript client.ts 
+import { ActionCodesClient } from '@actioncodes/sdk';
+
+const client = new ActionCodesClient();
+```
+  </Step>
+  <Step title="Now you are ready to do magic with Action Codes!">
+```typescript input.ts 
+// Get code from user and resolve it to verify and see details!
+
+await client.resolve(code);
+```
+  </Step>
+</Steps>
+
+
+
+

@@ -1,0 +1,199 @@
+---
+title: "Methods"
+---
+
+A comprehensive overview of the methods available in the Action Codes SDK for interacting with the Action Codes Protocol.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Method Reference](#method-reference)
+  - [resolve](#resolve)
+  - [getStatus](#getstatus)
+  - [observeStatus](#observestatus)
+  - [register](#register)
+  - [attachTransaction](#attachtransaction)
+  - [attachMessage](#attachmessage)
+  - [finalizeTransaction](#finalizetransaction)
+  - [finalizeMessage](#finalizemessage)
+- [Error Handling](#error-handling)
+- [Examples](#examples)
+
+---
+
+## Overview
+
+The Action Codes SDK provides a set of methods to interact with the Action Codes Protocol, enabling you to register, resolve, attach, and finalize action codes on Solana.
+
+---
+
+## Method Reference
+
+### resolve
+
+```ts
+await client.resolve(code: string): Promise<ActionCode>
+```
+Resolves an action code and returns its details.
+
+**Parameters:**
+- `code` (string): The code to resolve.
+
+**Returns:** `Promise<ActionCode>` (see [ActionCode](/protocol/components/actioncode))
+
+---
+
+### getStatus
+
+```ts
+await client.getStatus(code: string): Promise<ActionCodeStatusResponse>
+```
+Fetches the status of an action code.
+
+**Parameters:**
+- `code` (string): The code to check.
+
+**Returns:** `Promise<ActionCodeStatusResponse>` (see [ActionCodeStatusResponse](/protocol/components/actioncode))
+
+---
+
+### observeStatus
+
+```ts
+for await (const status of client.observeStatus(code: string, options?: ObserveStatusOptions)) { ... }
+```
+Observes the status of an action code over time.
+
+**Parameters:**
+- `code` (string): The code to observe.
+- `options` (object): `{ interval?: number, timeout?: number }` (see [ObserveStatusOptions](/protocol/components/actioncode))
+
+**Returns:** `AsyncGenerator<ActionCodeStatusResponse>` (see [ActionCodeStatusResponse](/protocol/components/actioncode))
+
+---
+
+### register
+
+```ts
+await client.register(pubkey: PublicKey, sign: (message: string) => Promise<string>, metadata?: ActionCodeMeta): Promise<ActionCode>
+```
+Registers a new action code.
+
+**Parameters:**
+- `pubkey` (PublicKey): User's public key.
+- `sign` (function): Function to sign a message.
+- `metadata` (object, optional): Additional metadata (see [ActionCodeMeta](/protocol/components/actioncode)).
+
+**Returns:** `Promise<ActionCode>` (see [ActionCode](/protocol/components/actioncode))
+
+---
+
+### attachTransaction
+
+```ts
+await client.attachTransaction(code: string, transaction: string, meta?: ActionCodeMeta): Promise<AttachCodeResponse>
+```
+Attaches a transaction to an action code.
+
+**Parameters:**
+- `code` (string): The code to attach to.
+- `transaction` (string): The transaction data.
+- `meta` (object, optional): Additional metadata (see [ActionCodeMeta](/protocol/components/actioncode)).
+
+**Returns:** `Promise<AttachCodeResponse>` (see [AttachCodeResponse](/protocol/components/actioncode))
+
+---
+
+### attachMessage
+
+```ts
+await client.attachMessage(code: string, message: string, meta?: ActionCodeMeta): Promise<AttachCodeResponse>
+```
+Attaches a message to an action code.
+
+**Parameters:**
+- `code` (string): The code to attach to.
+- `message` (string): The message to attach.
+- `meta` (object, optional): Additional metadata (see [ActionCodeMeta](/protocol/components/actioncode)).
+
+**Returns:** `Promise<AttachCodeResponse>` (see [AttachCodeResponse](/protocol/components/actioncode))
+
+---
+
+### finalizeTransaction
+
+```ts
+await client.finalizeTransaction(code: string, signature: string): Promise<FinalizeCodeResponse>
+```
+Finalizes an action code with a transaction signature.
+
+**Parameters:**
+- `code` (string): The code to finalize.
+- `signature` (string): The transaction signature.
+
+**Returns:** `Promise<FinalizeCodeResponse>` (see [FinalizeCodeResponse](/protocol/components/actioncode))
+
+---
+
+### finalizeMessage
+
+```ts
+await client.finalizeMessage(code: string, signedMessage: string): Promise<FinalizeCodeResponse>
+```
+Finalizes an action code with a signed message.
+
+**Parameters:**
+- `code` (string): The code to finalize.
+- `signedMessage` (string): The signed message.
+
+**Returns:** `Promise<FinalizeCodeResponse>` (see [FinalizeCodeResponse](/protocol/components/actioncode))
+
+---
+
+## Error Handling
+
+The SDK throws custom errors for various failure scenarios:
+
+- `CodeNotFoundError`: The code does not exist.
+- `UnauthorizedError`: The request is unauthorized.
+- `ExpiredCodeError`: The code has expired.
+- `ActionCodesBaseError`: Base error for ActionCodes.
+- `InvalidCodeFormatError`: The code format is invalid.
+
+---
+
+## Examples
+
+### Register and Attach a Transaction
+
+```ts
+import { ActionCodesClient } from "@actioncodes/protocol";
+import { PublicKey } from "@solana/web3.js";
+
+const client = new ActionCodesClient();
+const pubkey = new PublicKey("...");
+const sign = async (message: string) => { /* sign logic */ };
+
+// Register a code
+const actionCode = await client.register(pubkey, sign);
+
+// Attach a transaction
+const attachResponse = await client.attachTransaction(actionCode.code, "<transaction>");
+```
+
+### Observe Status
+
+```ts
+for await (const status of client.observeStatus(actionCode.code)) {
+  console.log(status);
+}
+```
+
+### Finalize a Transaction
+
+```ts
+const finalizeResponse = await client.finalizeTransaction(actionCode.code, "<signature>");
+```
+
+---
+

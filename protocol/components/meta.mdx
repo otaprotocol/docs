@@ -1,0 +1,85 @@
+---
+title: "Protocol Meta"
+---
+
+The protocol meta format is used for structured code verification and memo/message parsing in the Action Codes Protocol. It encodes metadata about the code, its issuer, and its context in a compact string format.
+
+---
+## ProtocolMetaV1 Interface
+
+```ts
+interface ProtocolMetaV1 {
+  version: string;
+  prefix: string;
+  initiator: string;
+  id: string;
+  iss?: string; // issuer (protocol authority)
+  params?: string;
+}
+```
+Describes the structure of protocol meta information for code verification.
+
+---
+
+## ProtocolMetaParser Class
+
+Utility class for parsing, serializing, and validating protocol meta strings.
+
+### parse
+```ts
+static parse(metaString: string): ProtocolMetaV1 | null
+```
+Parses a protocol meta string and returns a `ProtocolMetaV1` object, or `null` if invalid.
+
+---
+
+### serialize
+```ts
+static serialize(meta: ProtocolMetaV1): string
+```
+Serializes a `ProtocolMetaV1` object into a protocol meta string.
+
+---
+
+### fromInitiator
+```ts
+static fromInitiator(initiator: string, iss: string, prefix?: string, params?: string, timestamp?: number): ProtocolMetaV1
+```
+Creates a `ProtocolMetaV1` object from the initiator, issuer, prefix, optional params, and optional timestamp.
+
+---
+
+### validateCode
+```ts
+static validateCode(meta: ProtocolMetaV1, timestamp?: number): boolean
+```
+Validates if a code matches the protocol meta (by comparing the code hash).
+
+---
+
+### validateMetaFromString
+```ts
+static validateMetaFromString(metaString: string, timestamp?: number): boolean
+```
+Validates if a code matches the protocol meta by parsing from a string.
+
+---
+
+## Example
+
+```ts
+import { ProtocolMetaParser } from "@actioncodes/protocol";
+
+const metaString = "actioncodes:v=1&pre=CODE&ini=...&id=...&iss=...";
+const meta = ProtocolMetaParser.parse(metaString);
+
+if (meta) {
+  const isValid = ProtocolMetaParser.validateCode(meta);
+  console.log(isValid);
+}
+
+const serialized = ProtocolMetaParser.serialize(meta!);
+console.log(serialized);
+```
+
+---

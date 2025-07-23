@@ -1,0 +1,108 @@
+---
+title: "CodeGenerator"
+---
+
+The `CodeGenerator` class provides static utilities for generating, validating, and normalizing action codes and prefixes in the Action Codes Protocol. It ensures codes are deterministic, secure, and conform to protocol standards.
+
+---
+
+## Constants
+
+- `TIME_WINDOW_MS`: Code validity window in milliseconds (default: protocol TTL)
+- `CODE_DIGITS`: Number of digits in the code (default: 8)
+- `MIN_PREFIX_LENGTH`: Minimum allowed prefix length
+- `MAX_PREFIX_LENGTH`: Maximum allowed prefix length
+
+---
+
+## Static Methods
+
+### validatePrefix
+```ts
+static validatePrefix(prefix: string): boolean
+```
+Validates the format of a prefix. Returns `true` if valid, `false` otherwise.
+
+---
+
+### validateCodeFormat
+```ts
+static validateCodeFormat(code: string): boolean
+```
+Validates that a code is in the correct format (prefix + exactly 8 digits). Returns `true` if valid.
+
+---
+
+### validateCodeDigits
+```ts
+static validateCodeDigits(code: string): boolean
+```
+Checks that the numeric part of a code is exactly 8 digits. Returns `true` if valid.
+
+---
+
+### normalizePrefix
+```ts
+static normalizePrefix(prefix: string): string
+```
+Normalizes a prefix (converts protocol default to empty string, validates others). Throws if invalid.
+
+---
+
+### generateCode
+```ts
+static generateCode(pubkey: string, prefix?: string, timestamp?: number): { code: string; issuedAt: number; expiresAt: number }
+```
+Generates a deterministic 8-digit code based on public key, prefix, and timestamp. Returns the code, issuedAt, and expiresAt.
+
+---
+
+### deriveCodeHash
+```ts
+static deriveCodeHash(pubkey: string, prefix?: string, timestamp?: number): string
+```
+Derives a full SHA-256 hash for storage or encryption key generation.
+
+---
+
+### getExpectedCode
+```ts
+static getExpectedCode(pubkey: string, timestamp: number, prefix?: string): string
+```
+Returns the expected code for a given public key and timestamp.
+
+---
+
+### validateCode
+```ts
+static validateCode(code: string, pubkey: string, timestamp: number, prefix?: string): boolean
+```
+Validates if a code matches the expected code for a given public key and timestamp.
+
+---
+
+### isValidTimestamp
+```ts
+static isValidTimestamp(timestamp: number): boolean
+```
+Checks if a timestamp falls within the valid time window.
+
+---
+
+## Example
+
+```ts
+import { CodeGenerator } from "@actioncodes/protocol";
+
+const pubkey = "...";
+const prefix = "OTA";
+const timestamp = Date.now();
+
+const { code, issuedAt, expiresAt } = CodeGenerator.generateCode(pubkey, prefix, timestamp);
+console.log(code); // e.g., "OTA12345678"
+
+const isValid = CodeGenerator.validateCode(code, pubkey, timestamp, prefix);
+console.log(isValid); // true
+```
+
+---

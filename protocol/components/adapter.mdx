@@ -1,0 +1,111 @@
+---
+title: "Adapter"
+---
+
+The `BaseChainAdapter` class is an abstract base class for implementing chain-specific protocol meta operations. It defines the required interface for encoding, decoding, injecting, and validating protocol meta in blockchain transactions.
+
+---
+
+## Type Parameter
+
+- `T`: The chain-specific transaction type handled by the adapter.
+
+---
+
+## Abstract Methods
+
+### encodeMeta
+```ts
+abstract encodeMeta(meta: ProtocolMetaV1): any
+```
+Encodes protocol meta for this chain.
+
+---
+
+### decodeMeta
+```ts
+abstract decodeMeta(tx: T): ProtocolMetaV1 | null
+```
+Decodes protocol meta from a chain-specific transaction.
+
+---
+
+### injectMeta
+```ts
+abstract injectMeta(serializedTx: string, meta: ProtocolMetaV1): string
+```
+Injects protocol meta into a serialized transaction string.
+
+---
+
+### validate
+```ts
+abstract validate(tx: T, authorities: string[], expectedPrefix?: string): boolean
+```
+Validates a transaction with protocol meta and authority list.
+
+---
+
+### hasIssuerSignature
+```ts
+abstract hasIssuerSignature(tx: T, issuer: string): boolean
+```
+Checks if the issuer has signed the transaction.
+
+---
+
+### detectTampering
+```ts
+detectTampering(tx: T, authorities: string[], expectedPrefix: string = 'DEFAULT'): boolean
+```
+Detects tampered transactions by cross-checking metadata and signatures. (Default implementation provided.)
+
+---
+
+### validateTransactionIntegrity
+```ts
+protected abstract validateTransactionIntegrity(tx: T, meta: ProtocolMetaV1): boolean
+```
+Chain-specific transaction integrity validation. Override for additional logic.
+
+---
+
+### getCodeSignatureMessage
+```ts
+getCodeSignatureMessage(code: string, timestamp: number, prefix: string = PROTOCOL_CODE_PREFIX): string
+```
+Returns the code signature message for signing and verification.
+
+---
+
+### verifyCodeSignature
+```ts
+abstract verifyCodeSignature(actionCode: ActionCode): boolean
+```
+Verifies the code signature for the action code. Chain-specific implementation required.
+
+---
+
+### signWithProtocolKey
+```ts
+abstract signWithProtocolKey(actionCode: ActionCode, key: any): Promise<ActionCode>
+```
+Signs the transaction with the protocol key using a callback approach. Chain-specific implementation required.
+
+---
+
+### verifyFinalizedTransaction
+```ts
+abstract verifyFinalizedTransaction(tx: any, actionCode: ActionCode): boolean
+```
+Verifies the finalized transaction. Chain-specific implementation required.
+
+---
+
+### validateSignedMessage
+```ts
+abstract validateSignedMessage(message: string, signedMessage: string, pubkey: string): boolean
+```
+Validates a signed message for sign-only mode. Chain-specific implementation required.
+
+---

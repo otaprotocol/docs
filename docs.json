@@ -43,7 +43,6 @@
         ]
       },
       {
-        "disabled": true,
         "tab": "Playground",
         "groups": [
           {
@@ -57,35 +56,48 @@
         ]
       },
       {
-        "disabled": true,
+        "tab": "Relayer Docs",
+        "groups": [
+          {
+            "group": "Relayer Overview",
+            "pages": [
+              "relayer/introduction"
+            ]
+          },
+          {
+            "group": "Client SDK",
+            "pages": [
+              "relayer/sdk/introduction",
+              "relayer/sdk/setup",
+              "relayer/sdk/methods",
+              "relayer/sdk/types"
+            ]
+          },
+          {
+            "group": "Relayer REST API",
+            "pages": [
+              "relayer/rest/introduction"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Protocol Docs",
         "groups": [
           {
             "group": "Protocol Reference",
             "pages": [
-              "protocol-docs/introduction"
+              "protocol/introduction"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Relayer Docs",
-        "groups": [
+          },
           {
-            "group": "API documentation",
+            "group": "Protocol Components",
             "pages": [
-              "relayer/index"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Client Docs",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "sdk/introduction"
+              "protocol/components/actioncode",
+              "protocol/components/codegen",
+              "protocol/components/meta",
+              "protocol/components/protocol",
+              "protocol/components/adapter"
             ]
           }
         ]

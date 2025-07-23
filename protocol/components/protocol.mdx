@@ -1,0 +1,243 @@
+---
+title: "Protocol"
+---
+
+The `ActionCodesProtocol` class is the main entry point for the One-Time Action Code Protocol. It provides a unified interface for generating, validating, and managing action codes.
+
+---
+
+## ProtocolConfig Interface
+
+```ts
+interface ProtocolConfig {
+  version: string;
+  defaultPrefix: string;
+  codeTTL: number;
+  codeLength: number;
+  maxPrefixLength: number;
+  minPrefixLength: number;
+}
+```
+Defines the configuration options for the protocol instance.
+
+---
+
+## ActionCodesProtocol
+
+### constructor
+```ts
+new ActionCodesProtocol(config?: Partial<ProtocolConfig>)
+```
+Creates a new protocol instance with optional custom configuration.
+
+---
+
+### registerAdapter
+```ts
+registerAdapter<T>(adapter: BaseChainAdapter<T>): void
+```
+Registers a chain adapter implementation.
+
+---
+
+### getRegisteredChains
+```ts
+getRegisteredChains(): string[]
+```
+Returns an array of registered chain identifiers.
+
+---
+
+### isChainSupported
+```ts
+isChainSupported(chain: string): boolean
+```
+Checks if a chain is supported.
+
+---
+
+### getChainAdapter
+```ts
+getChainAdapter<T = any>(chain: string): BaseChainAdapter<T> | undefined
+```
+Returns the chain adapter for a given chain, or undefined if not registered.
+
+---
+
+### validateActionCode
+```ts
+validateActionCode(actionCode: ActionCode): boolean
+```
+Validates an action code, checking intent type and required fields.
+
+---
+
+### createActionCode
+```ts
+async createActionCode(
+  pubkey: string,
+  signFn: (message: string) => Promise<string>,
+  chain: SupportedChain,
+  prefix?: string,
+  timestamp?: number
+): Promise<ActionCode>
+```
+Creates a new action code for a given public key, signing function, and chain.
+
+---
+
+### attachTransaction
+```ts
+attachTransaction(
+  actionCode: ActionCode,
+  transaction: string,
+  issuer: string,
+  params?: string,
+  txType?: string
+): ActionCode
+```
+Attaches a transaction to an action code with protocol meta injection.
+
+---
+
+### attachMessage
+```ts
+attachMessage(
+  actionCode: ActionCode,
+  message: string,
+  params?: string,
+  messageType?: string
+): ActionCode
+```
+Attaches a message to an action code (sign-only mode).
+
+---
+
+### finalizeActionCode
+```ts
+finalizeActionCode(actionCode: ActionCode, signature: string): ActionCode
+```
+Finalizes an action code based on its intent type.
+
+---
+
+### createProtocolMeta
+```ts
+createProtocolMeta(
+  actionCode: ActionCode,
+  issuer?: string,
+  params?: string,
+  timestamp?: number
+): ProtocolMetaV1
+```
+Creates protocol meta for a transaction.
+
+---
+
+### encodeProtocolMeta
+```ts
+encodeProtocolMeta(meta: ProtocolMetaV1, chain: string): any
+```
+Encodes protocol meta for a specific chain.
+
+---
+
+### decodeProtocolMeta
+```ts
+decodeProtocolMeta(transaction: any, chain: string): ProtocolMetaV1 | null
+```
+Decodes protocol meta from a transaction.
+
+---
+
+### validateTransaction
+```ts
+validateTransaction(
+  transaction: any,
+  chain: string,
+  authorities: string[],
+  expectedPrefix?: string
+): boolean
+```
+Validates a transaction with protocol meta.
+
+---
+
+### validateTransactionTyped
+```ts
+validateTransactionTyped<T>(
+  transaction: T,
+  chain: string,
+  authorities: string[],
+  expectedPrefix?: string
+): boolean
+```
+Type-safe transaction validation for specific chains.
+
+---
+
+### detectTampering
+```ts
+detectTampering<T>(
+  transaction: T,
+  chain: string,
+  authorities: string[],
+  expectedPrefix?: string
+): boolean
+```
+Detects tampered transactions with type safety.
+
+---
+
+### decodeProtocolMetaTyped
+```ts
+decodeProtocolMetaTyped<T>(transaction: T, chain: string): ProtocolMetaV1 | null
+```
+Type-safe protocol meta decoding.
+
+---
+
+### getConfig
+```ts
+getConfig(): ProtocolConfig
+```
+Returns the current protocol configuration.
+
+---
+
+### updateConfig
+```ts
+updateConfig(updates: Partial<ProtocolConfig>): void
+```
+Updates the protocol configuration.
+
+---
+
+### static create
+```ts
+static create(): ActionCodesProtocol
+```
+Creates a new protocol instance with default configuration.
+
+---
+
+### static createWithConfig
+```ts
+static createWithConfig(config: Partial<ProtocolConfig>): ActionCodesProtocol
+```
+Creates a new protocol instance with custom configuration.
+
+---
+
+## Example
+
+```ts
+import { ActionCodesProtocol } from "@actioncodes/protocol";
+
+const protocol = ActionCodesProtocol.create();
+protocol.registerAdapter(myChainAdapter);
+
+const actionCode = await protocol.createActionCode(pubkey, signFn, "solana");
+```
+
+---

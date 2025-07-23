@@ -1,0 +1,163 @@
+---
+title: "Types & Interfaces"
+---
+
+This page lists the main types and interfaces used in the ActionCodes SDK. For detailed definitions, see the protocol documentation:
+
+- [ActionCodeMeta, ActionCodeStatus, ActionCode, ActionCodeTransaction, ActionCodeFields](../../protocol/components/actioncode.mdx)
+
+---
+
+## ActionCodeMeta
+See [ActionCodeMeta](../../protocol/components/actioncode.mdx).
+
+---
+
+## ResolveCodeRequest
+
+```ts
+interface ResolveCodeRequest {
+  code: string;
+}
+```
+Request payload for resolving an action code.
+
+---
+
+## ActionCodeStatusResponse
+
+```ts
+interface ActionCodeStatusResponse {
+  status: ActionCodeStatus;
+  expiresAt: number;
+  hasTransaction: boolean;
+  hasMessage: boolean;
+  finalizedSignature: string | null;
+  signedMessage: string | null;
+}
+```
+Response for the status of an action code.
+
+---
+
+## RegisterCodeRequest
+
+```ts
+interface RegisterCodeRequest {
+  code: string;
+  pubkey: string;
+  signature: string;
+  timestamp: number;
+  prefix: string;
+  chain: 'solana';
+  metadata?: ActionCodeMeta;
+}
+```
+Request payload for registering an action code.
+
+---
+
+## RegisterCodeResponse
+
+```ts
+interface RegisterCodeResponse {
+  codeHash: string;
+  issuedAt: number;
+  expiresAt: number;
+  remainingInSeconds: number;
+  status: ActionCodeStatus;
+}
+```
+Response for registering an action code.
+
+---
+
+## AttachCodeRequest
+
+```ts
+interface AttachCodeRequest {
+  code: string;
+  chain: 'solana';
+  transaction?: string;
+  message?: string;
+  intentType: 'transaction' | 'sign-only';
+  meta?: ActionCodeMeta;
+}
+```
+Request payload for attaching a transaction or message to an action code.
+
+---
+
+## AttachCodeResponse
+
+```ts
+interface AttachCodeResponse {
+  status: string;
+  codeHash: string;
+  expiresAt: number;
+  chain: string;
+  actionCodeStatus: ActionCodeStatus;
+  hasTransaction: boolean;
+  hasMessage: boolean;
+}
+```
+Response for attaching a transaction or message to an action code.
+
+---
+
+## FinalizeCodeRequest
+
+```ts
+interface FinalizeCodeRequest {
+  code: string;
+  signature?: string;
+  signedMessage?: string;
+}
+```
+Request payload for finalizing an action code.
+
+---
+
+## FinalizeCodeResponse
+
+```ts
+interface FinalizeCodeResponse {
+  status: string;
+  finalizedSignature: string;
+  expiresAt: number;
+}
+```
+Response for finalizing an action code.
+
+---
+
+## ObserveStatusOptions
+
+```ts
+interface ObserveStatusOptions {
+  interval?: number;
+  timeout?: number;
+}
+```
+Options for observing the status of an action code.
+
+---
+
+## ActionCodeStatus (Enum)
+
+```ts
+type ActionCodeStatus = 'pending' | 'attached' | 'finalized' | string;
+```
+Represents the status of an action code.
+
+---
+
+## Error Types
+
+- `CodeNotFoundError`: The code does not exist.
+- `UnauthorizedError`: The request is unauthorized.
+- `ExpiredCodeError`: The code has expired.
+- `ActionCodesBaseError`: Base error for ActionCodes.
+- `InvalidCodeFormatError`: The code format is invalid.
+
+---
