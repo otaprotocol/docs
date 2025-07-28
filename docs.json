@@ -37,7 +37,8 @@
             "pages": [
               "guides/action-codes-generator",
               "guides/relayer",
-              "guides/client-sdk"
+              "guides/client-sdk",
+              "guides/solana-blink-integration"
             ]
           }
         ]
@@ -50,7 +51,8 @@
             "pages": [
               "playground/index",
               "playground/sign-message",
-              "playground/sign-transaction"
+              "playground/sign-transaction",
+              "playground/telegram-bot"
             ]
           }
         ]
