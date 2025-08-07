@@ -7,6 +7,9 @@
     "light": "#07C983",
     "dark": "#15803D"
   },
+  "banner": {
+    "content": "🎉 Action Codes Protocol won 4th place out of 1400+ project in infrastructure track at [Colosseum Breakout Hackathon](https://arena.colosseum.org/projects/explore/one-time-action-codes-1?ref=blog.colosseum.com)"
+  },
   "favicon": "/favicon.ico",
   "navigation": {
     "tabs": [
