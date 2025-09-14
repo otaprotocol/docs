@@ -180,18 +180,18 @@ All prefix metadata must conform to the Prefix Metadata Schema v1, which include
 
 ```mermaid
 flowchart TD
-    A[User submits prefix request + metadata URI + KYC] --> B[Platform stores request (pending)]
-    B --> C[Registered verifier checks submission]
-    C --> D[Validate metadata against Schema v1 (Default is v1)]
-    D --> E{Approve or Reject?}
-    E -->|Reject| F[Submission rejected, reason stored]
-    E -->|Approve| G[Status = approved, fee pending]
-    G --> H[User completes fee payment]
-    H --> I[Platform creates PrefixAccount on-chain with ref + authority_keys]
-    I --> J[Relayers/wallets fetch PrefixAccount to verify trust & signature]
-    J --> K[User enters code; relayer verifies code signature using authority_keys]
-    K --> L[Relayer validates metadata from URI]
-    L --> M[Attach TX / execute action if valid]
+    A[User submits prefix request + metadata URI + KYC] --> B[Platform stores request with pending status]
+    B --> C[Registered verifier checks submission]
+    C --> D[Validate metadata against Schema v1 Default is v1]
+    D --> E{Approve or Reject?}
+    E -->|Reject| F[Submission rejected, reason stored]
+    E -->|Approve| G[Status = approved, fee pending]
+    G --> H[User completes fee payment]
+    H --> I[Platform creates PrefixAccount on-chain with ref + authority_keys]
+    I --> J[Relayers/wallets fetch PrefixAccount to verify trust & signature]
+    J --> K[User enters code; relayer verifies code signature using authority_keys]
+    K --> L[Relayer validates metadata from URI]
+    L --> M[Attach TX / execute action if valid]
 ```
 
 ## Key Principles
