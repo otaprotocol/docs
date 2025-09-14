@@ -45,7 +45,7 @@ Prefixes provide namespaces, trust branding, and metadata routing in the Action 
 | `created_at`     | i64      | Submission timestamp                                                     |
 | `expiry_at`      | i64?     | Optional expiry timestamp for auto-rejection                             |
 | `status`         | u8       | 0=pending, 1=approved, 2=rejected                                       |
-| `ref_hash`       | hash     | Hash of approval record or IPFS CID                                      |
+| `auth_ref`       | hash     | Hash of approval record, SAS ref, etc.                                     |
 | `bump`           | u8       | PDA bump for on-chain account                                            |
 
 #### PrefixAccount Fields
@@ -57,7 +57,7 @@ Prefixes provide namespaces, trust branding, and metadata routing in the Action 
 | `authority_keys` | pubkey[] | Keys authorized to generate / sign codes for this prefix                 |
 | `metadata_uri`   | string   | URI to JSON metadata following Prefix Metadata Schema v1 (Default is v1) |
 | `metadata_hash`  | hash     | SHA256 hash of metadata for verification                                 |
-| `ref_hash`       | hash     | Hash of approval record or IPFS CID                                      |
+| `auth_ref`       | hash     | Hash of approval record of auth, may be SAS ref, or other auth ref       |
 | `status`         | u8       | 0=inactive, 1=active                                                     |
 | `created_at`     | i64      | Finalization timestamp                                                   |
 | `updated_at`     | i64      | Last update timestamp                                                    |
@@ -196,7 +196,7 @@ All prefix metadata must conform to the Prefix Metadata Schema v1, which include
 - Fee escrowed in PendingPrefixAccount until finalization
 - Prefixes reserved for branded tokens or businesses require verification
 - Only registered verifiers can approve: prevents abuse
-- `ref_hash` ensures full auditability
+- `auth_ref` ensures full auditability
 - Supports revocation / deactivation by owner or DAO
 - PendingPrefixAccount can have expiry for auto-rejection
 
@@ -225,14 +225,14 @@ flowchart TD
 3. **Fee-on-submit**: spam-proof with immediate cost
 4. **Manual approval now, scalable to multiple verifiers / attestation services**
 5. **Dynamic fees**: anti-spam, flexible governance
-6. **Auditability**: ref_hash stores hash of approval record
+6. **Auditability**: auth_ref stores hash of approval record, SAS ref, etc.
 7. **Cross-chain ready**: metadata / authority verification works across blockchains
 8. **Delegated / multiple authority keys**: future-proof for backend servers and relayer programs
 
 ## Notes
 
 - Fully manual for now: future automation is possible with multiple verifiers or attestation services
-- Protocol remains chain-agnostic; PrefixAccount \+ ref_hash are canonical trust anchors
+- Protocol remains chain-agnostic; PrefixAccount \+ auth_ref are canonical trust anchors
 - UX is simple: users type code, see trust badge, and confirm transaction
 - Fee collected at submission prevents spam and ensures commitment
 - PendingPrefixAccount provides escrow and audit trail for submissions
