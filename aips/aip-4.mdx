@@ -28,22 +28,39 @@ Prefixes provide namespaces, trust branding, and metadata routing in the Action 
 ### Prefix Structure
 
 - **Prefix**: 3–12 uppercase alphanumeric characters
-- **PrefixAccount**: On-chain representation of a verified prefix
+- **PendingPrefixAccount**: On-chain escrow for prefix submissions (fee collected at submission)
+- **PrefixAccount**: On-chain representation of an approved and active prefix
 - **Purpose**: Provide canonical trust for relayers/wallets and link prefix to owner, metadata, and fee reference
+
+#### PendingPrefixAccount Fields
+
+| Field            | Type     | Description                                                              |
+| ---------------- | -------- | ------------------------------------------------------------------------ |
+| `prefix`         | string   | Uppercase alphanumeric prefix (3–12 chars)                               |
+| `owner`          | pubkey   | Main wallet controlling prefix                                           |
+| `authority_keys` | pubkey[] | Keys authorized to generate / sign codes for this prefix                 |
+| `metadata_uri`   | string   | URI to JSON metadata following Prefix Metadata Schema v1 (Default is v1) |
+| `metadata_hash`  | hash     | SHA256 hash of metadata for verification                                 |
+| `fee_paid`       | u64      | Fee amount paid in lamports (escrowed)                                  |
+| `created_at`     | i64      | Submission timestamp                                                     |
+| `expiry_at`      | i64?     | Optional expiry timestamp for auto-rejection                             |
+| `status`         | u8       | 0=pending, 1=approved, 2=rejected                                       |
+| `ref_hash`       | hash     | Hash of approval record or IPFS CID                                      |
+| `bump`           | u8       | PDA bump for on-chain account                                            |
 
 #### PrefixAccount Fields
 
 | Field            | Type     | Description                                                              |
 | ---------------- | -------- | ------------------------------------------------------------------------ |
 | `prefix`         | string   | Uppercase alphanumeric prefix (3–12 chars)                               |
-| `owner_pubkey`   | pubkey   | Main wallet controlling prefix                                           |
+| `owner`          | pubkey   | Main wallet controlling prefix                                           |
 | `authority_keys` | pubkey[] | Keys authorized to generate / sign codes for this prefix                 |
 | `metadata_uri`   | string   | URI to JSON metadata following Prefix Metadata Schema v1 (Default is v1) |
-| `ref`            | hash     | Hash of approval record (verifier signatures \+ timestamp)               |
-| `status`         | enum     | pending, approved, rejected, active, inactive                            |
-| `fee_paid`       | bool     | True if registration fee paid                                            |
-| `created_at`     | u64      | Submission / approval timestamp                                          |
-| `updated_at`     | u64      | Last update timestamp                                                    |
+| `metadata_hash`  | hash     | SHA256 hash of metadata for verification                                 |
+| `ref_hash`       | hash     | Hash of approval record or IPFS CID                                      |
+| `status`         | u8       | 0=inactive, 1=active                                                     |
+| `created_at`     | i64      | Finalization timestamp                                                   |
+| `updated_at`     | i64      | Last update timestamp                                                    |
 | `bump`           | u8       | PDA bump for on-chain account                                            |
 
 **Notes:**
@@ -53,15 +70,18 @@ Prefixes provide namespaces, trust branding, and metadata routing in the Action 
 
 ### Prefix Registration Flow
 
-#### 1. Submission (Off-Chain / Platform)
+#### 1. Submission with Fee Payment
 
-- Restricted to registered verifiers (see Verifiers list)
+- User submits prefix request and pays fee in the same transaction
 - Submission includes:
-  - Prefix name
+  - Prefix name (3–12 uppercase alphanumeric)
   - Owner pubkey
   - Metadata URI (JSON following Prefix Metadata Schema v1 (Default is v1))
-  - Optional KYC info or supporting evidence (token ownership, domain proof)
-- Platform stores request as pending
+  - Metadata hash (SHA256 of metadata content)
+  - Authority keys (optional initial list)
+  - Fee payment (transferred to PendingPrefixAccount escrow)
+- Program creates PendingPrefixAccount with status = pending
+- Fee is collected immediately to prevent spam
 
 #### 2. Manual Verification
 
@@ -69,15 +89,17 @@ Prefixes provide namespaces, trust branding, and metadata routing in the Action 
   - Check KYC / identity
   - Validate metadata against Prefix Metadata Schema v1 (Default is v1)
   - Validate token / domain ownership if required
+  - Verify metadata_uri content matches metadata_hash
 - Status updated:
-  - `approved` → moves to pending fee payment
-  - `rejected` → reason stored
+  - `approved`: ready for finalization
+  - `rejected`: owner can reclaim fee
 
-#### 3. Fee Payment (Pending → Active)
+#### 3. Finalization (Pending: Active)
 
-- Fee is dynamic, stored in FeeRegistry
-- User pays fee → `fee_paid = true` → status becomes `active`
-- On-chain PrefixAccount created at this point
+- Admin (multisig) finalizes approved pending prefixes
+- Program creates PrefixAccount from PendingPrefixAccount data
+- Fee transferred from escrow to treasury
+- PendingPrefixAccount closed (or archived for audit trail)
 
 #### 4. On-Chain PrefixAccount
 
@@ -90,24 +112,24 @@ Prefixes provide namespaces, trust branding, and metadata routing in the Action 
 | Field          | Type   | Description                         |
 | -------------- | ------ | ----------------------------------- |
 | `current_fee`  | u64    | Fee in lamports (SOL smallest unit) |
-| `updated_at`   | u64    | Timestamp of last update            |
-| `admin_pubkey` | pubkey | Admin / DAO wallet pubkey           |
+| `updated_at`   | i64    | Timestamp of last update            |
+| `admin`        | pubkey | Admin / DAO wallet pubkey           |
+| `bump`         | u8     | PDA bump for on-chain account       |
 
 - Fees can be edited by admin/DAO
-- Collected after approval to ensure UX simplicity
-- Prevents spam / squatting
+- Collected at submission to prevent spam
+- Fee is escrowed in PendingPrefixAccount until finalization
 
 ### Verifiers List
 
-| Field             | Type   | Description                                  |
-| ----------------- | ------ | -------------------------------------------- |
-| `verifier_pubkey` | pubkey | Wallet authorized to approve / submit prefix |
-| `status`          | enum   | active, inactive                             |
-| `added_at`        | u64    | Timestamp verifier added                     |
-| `added_by`        | pubkey | Who added this verifier                      |
-| `removed_at`      | u64    | Optional removal timestamp                   |
+| Field      | Type   | Description                                  |
+| ---------- | ------ | -------------------------------------------- |
+| `admin`    | pubkey | Admin wallet controlling verifiers           |
+| `verifiers`| pubkey[]| List of authorized verifier pubkeys          |
+| `bump`     | u8     | PDA bump for on-chain account                |
 
-- Multiple verifiers possible → consensus-based approval
+- Multiple verifiers possible: consensus-based approval
+- Verifiers can approve/reject pending prefix submissions
 
 ### Prefix Metadata Schema v1
 
@@ -164,50 +186,55 @@ All prefix metadata must conform to the Prefix Metadata Schema v1, which include
    - Verify `icon` URL is accessible and valid format
    - May check provided`intentCategories` match expected action type
 4. Optional: relayer-specific checks (domain, registration, SAS)
-5. If all checks pass → attach TX / execute action
+5. If all checks pass: attach TX / execute action
 
 **Cross-chain ready:** PrefixAccount \+ authority_keys can validate codes from any blockchain relayer
 
 ### Security & Anti-Spam
 
-- Fee prevents spam
+- Fee collected at submission prevents spam (immediate cost)
+- Fee escrowed in PendingPrefixAccount until finalization
 - Prefixes reserved for branded tokens or businesses require verification
-- Only registered verifiers can approve → prevents abuse
-- `ref` ensures full auditability
+- Only registered verifiers can approve: prevents abuse
+- `ref_hash` ensures full auditability
 - Supports revocation / deactivation by owner or DAO
+- PendingPrefixAccount can have expiry for auto-rejection
 
 ### Manual Flow Diagram
 
 ```mermaid
 flowchart TD
-    A[User submits prefix request + metadata URI + KYC] --> B[Platform stores request with pending status]
-    B --> C[Registered verifier checks submission]
-    C --> D[Validate metadata against Schema v1 Default is v1]
-    D --> E{Approve or Reject?}
-    E -->|Reject| F[Submission rejected, reason stored]
-    E -->|Approve| G[Status = approved, fee pending]
-    G --> H[User completes fee payment]
-    H --> I[Platform creates PrefixAccount on-chain with ref + authority_keys]
-    I --> J[Relayers/wallets fetch PrefixAccount to verify trust & signature]
-    J --> K[User enters code; relayer verifies code signature using authority_keys]
-    K --> L[Relayer validates metadata from URI]
-    L --> M[Attach TX / execute action if valid]
+    A[User submits prefix request + metadata URI + fee payment] --> B[PendingPrefixAccount created with fee escrow]
+    B --> C[Registered verifier checks submission]
+    C --> D[Validate metadata against Schema v1 Default is v1]
+    D --> E{Approve or Reject?}
+    E -->|Reject| F[Status = rejected, owner can reclaim fee]
+    E -->|Approve| G[Status = approved, ready for finalization]
+    G --> H[Admin finalizes approved prefix]
+    H --> I[PrefixAccount created, fee transferred to treasury]
+    I --> J[Relayers/wallets fetch PrefixAccount to verify trust & signature]
+    J --> K[User enters code; relayer verifies code signature using authority_keys]
+    K --> L[Relayer validates metadata from URI]
+    L --> M[Attach TX / execute action if valid]
 ```
 
 ## Key Principles
 
-1. **Users never see prefixes** → UX = one-time code entry
-2. **Prefix = trust anchor only** → verified by authority_keys
-3. **Manual approval now, scalable to multiple verifiers / attestation services**
-4. **Dynamic fees** → anti-spam, flexible governance
-5. **Auditability** → ref stores hash of approval record
-6. **Cross-chain ready** → metadata / authority verification works across blockchains
-7. **Delegated / multiple authority keys** → future-proof for backend servers and relayer programs
+1. **Users never see prefixes**: UX = one-time code entry
+2. **Prefix = trust anchor only**: verified by authority_keys
+3. **Fee-on-submit**: spam-proof with immediate cost
+4. **Manual approval now, scalable to multiple verifiers / attestation services**
+5. **Dynamic fees**: anti-spam, flexible governance
+6. **Auditability**: ref_hash stores hash of approval record
+7. **Cross-chain ready**: metadata / authority verification works across blockchains
+8. **Delegated / multiple authority keys**: future-proof for backend servers and relayer programs
 
 ## Notes
 
-- Fully manual for now → future automation is possible with multiple verifiers or attestation services
-- Protocol remains chain-agnostic; PrefixAccount \+ ref are canonical trust anchors
+- Fully manual for now: future automation is possible with multiple verifiers or attestation services
+- Protocol remains chain-agnostic; PrefixAccount \+ ref_hash are canonical trust anchors
 - UX is simple: users type code, see trust badge, and confirm transaction
+- Fee collected at submission prevents spam and ensures commitment
+- PendingPrefixAccount provides escrow and audit trail for submissions
 - Supports dynamic fee, revocation, metadata update, and auditability
 - Compatible with AIP-1…AIP-5 canonical code formats
